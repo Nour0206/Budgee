@@ -1,0 +1,19 @@
+<!-- res/drawable/progress_bar.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape
+            android:shape="rectangle">
+            <solid android:color="#E0E0E0" />
+            <corners android:radius="5dp" />
+        </shape>
+    </item>
+    <item android:left="2dp" android:right="2dp">
+        <clip android:gravity="left">
+            <shape
+                android:shape="rectangle">
+                <solid android:color="#F46C7F" />
+                <corners android:radius="5dp" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/budgetSettingsLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Static Monthly Budget Section -->
+    <TextView
+        android:id="@+id/monthlybudget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Monthly Budget"
+        android:textColor="@color/black"
+        android:textSize="23sp"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/totalBudgetInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter total budget (e.g. 2000)"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/saveTotalBudgetBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save Total Budget"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center"
+        android:background="@drawable/transaction_radio_button"/>
+
+    <!-- Static Category Budget Header and Filters -->
+    <TextView
+        android:id="@+id/categoryBudget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category Budgets"
+        android:textColor="@color/black"
+        android:textSize="23sp"
+        android:layout_marginTop="20dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="276dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/categoryBudgetsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </ScrollView>
+
+</LinearLayout>
