@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -33,9 +34,15 @@ public class LoginActivity extends AppCompatActivity {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
+        // Check if user is already logged in
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+            finish();
+        }
+
         // Login Button
         loginButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Button Clicked", Toast.LENGTH_SHORT).show();
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
 
@@ -67,7 +74,6 @@ public class LoginActivity extends AppCompatActivity {
 
         // Forgot Password
         forgotPassword.setOnClickListener(v -> {
-            Toast.makeText(this, "Button Clicked", Toast.LENGTH_SHORT).show();
             String email = emailInput.getText().toString().trim();
             if (email.isEmpty()) {
                 emailInput.setError("Enter your email to reset password");
@@ -76,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
             mAuth.sendPasswordResetEmail(email)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Reset link sent to: " + email, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Reset link sent to: " + email, Toast.LENGTH_LONG).show();
                         } else {
                             Exception e = task.getException();
                             Toast.makeText(LoginActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();

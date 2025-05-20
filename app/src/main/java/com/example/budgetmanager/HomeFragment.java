@@ -1,64 +1,177 @@
 package com.example.budgetmanager;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 public class HomeFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public HomeFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    private TextView tvCurrentDate, balance, income, expense;
+    private RecyclerView recentTransactionsRecycler;
+    private FirebaseAuth auth;
+    private DatabaseReference dbRef;
+    private ArrayList<Transaction> transactionList;
+    private TransactionAdapter transactionAdapter;
+    private Map<String, String> categoryMap = new HashMap<>(); // Store category ID and name (l hashmap kyma dictionnaire fyh id w valeur)
+    private ImageView logoutImage;
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        balance = view.findViewById(R.id.balance);
+        income = view.findViewById(R.id.income);
+        expense = view.findViewById(R.id.expense);
+        recentTransactionsRecycler = view.findViewById(R.id.recentTransactionsRecycler);
+        logoutImage = view.findViewById(R.id.logoutImage);
+
+        // Firebase of the user that signed in (bl id mteeou)
+        auth = FirebaseAuth.getInstance();
+        dbRef = FirebaseDatabase.getInstance().getReference("users")
+                .child(auth.getCurrentUser().getUid());
+
+
+        // Setup RecyclerView
+        transactionList = new ArrayList<>(); //ly feha les 3 derniers transactions
+        transactionAdapter = new TransactionAdapter(transactionList);
+        recentTransactionsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        recentTransactionsRecycler.setAdapter(transactionAdapter); //conectina liste bl recucler view a l'aide d'adaptateur
+
+        // Load categories first (naqraw l categories ml firebase id,valeur bch baad nwary l transaction ,kahter f transaction andy cle etranger ll categoiries)
+        loadCategories();
+        logoutImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Logout")
+                        .setMessage("Are you sure you want to logout?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                FirebaseAuth.getInstance().signOut();
+
+                                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", null) // Just dismiss the dialog
+                        .show();
+            }
+        });
+
+        return view;
+
+
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+    private void loadCategories() {
+        dbRef.child("categories").addListenerForSingleValueEvent(new ValueEventListener() {//dkhalna l categories
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                categoryMap.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    String id = data.getKey();
+                    String name = data.child("name").getValue(String.class);
+                    if (id != null && name != null) {
+                        categoryMap.put(id, name);
+                    }
+                }
+                loadTransactionData(); // Load transactions ky arfna l categories
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // ken fama erreur
+            }
+        });
+    }
+
+    private void loadTransactionData() {
+        dbRef.child("transactions").addValueEventListener(new ValueEventListener() {//dkhalna l transactions
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                double totalIncome = 0;
+                double totalExpense = 0;
+                transactionList.clear();
+
+                ArrayList<Transaction> allTransactions = new ArrayList<>();
+
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    Transaction transaction = data.getValue(Transaction.class);
+                    if (transaction != null) {
+
+                        // nbdlou id bl nom mtaa l category
+                        if (transaction.getCategory() != null && categoryMap.containsKey(transaction.getCategory())) {
+                            transaction.setDisplayCategoryName(categoryMap.get(transaction.getCategory()));
+                        }
+
+                        allTransactions.add(transaction);//nhotou transactions kol fl temporary list
+
+                        if ("Income".equals(transaction.getType())) {
+                            totalIncome += transaction.getAmount();
+                        } else if ("Expense".equals(transaction.getType())) {
+                            totalExpense += transaction.getAmount();
+                        }
+                    }
+                }
+
+                // on tire par date (nhbou ken last 3 recent ones)
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Collections.sort(allTransactions, (t1, t2) -> {
+                    try {
+                        Date d1 = sdf.parse(t1.getDate());
+                        Date d2 = sdf.parse(t2.getDate());
+                        return d2.compareTo(d1); // latest first
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                });
+
+                // Add top 3 to display
+                for (int i = 0; i < Math.min(3, allTransactions.size()); i++) {
+                    transactionList.add(allTransactions.get(i));
+                }
+
+                double totalBalance = totalIncome - totalExpense;
+                income.setText(totalIncome+" tnd");
+                expense.setText(totalExpense+" tnd");
+                balance.setText(totalBalance+" tnd");
+
+                transactionAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // ken fama erreur
+            }
+        });
     }
 }

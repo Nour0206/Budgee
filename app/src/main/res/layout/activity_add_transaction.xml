@@ -1,10 +1,171 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddTransactionActivity">
+    android:padding="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingBottom="16dp"
+            android:layout_marginBottom="20dp">
+
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/arrow_back" />
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="New Transaction"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="start|center_vertical"
+                android:paddingStart="8dp" />
+
+
+            <ImageButton
+                android:id="@+id/CheckButton"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/check" />
+        </LinearLayout>
+
+        <!-- Expense / Income Tabs -->
+        <RadioGroup
+            android:id="@+id/radioGroupType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <RadioButton
+                android:id="@+id/rbExpense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Expense"
+                android:button="@null"
+                android:background="@drawable/radio_button_selector"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:gravity="center"
+                android:layout_marginEnd="4dp"
+                android:checked="true" />
+
+
+            <RadioButton
+                android:id="@+id/rbIncome"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Income"
+                android:button="@null"
+                android:background="@drawable/radio_button_selector"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:gravity="center" />
+        </RadioGroup>
+
+
+        <TextView
+            android:id="@+id/tvamount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Amount"/>
+        <!-- Amount -->
+        <EditText
+            android:id="@+id/etAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="0 tnd "
+            android:textSize="32sp"
+            android:inputType="numberDecimal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:textColor="@color/black"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Title"/>
+        <EditText
+            android:id="@+id/etTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Transaction title"
+            android:inputType="text"
+            android:padding="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Categories -->
+        <GridLayout
+            android:id="@+id/categoryGrid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:layout_marginTop="12dp"
+            android:rowCount="2"
+            android:orientation="horizontal"
+            android:useDefaultMargins="true"
+            android:layout_marginBottom="20dp">
+
+        </GridLayout>
+
+        <!-- Date -->
+        <TextView
+            android:id="@+id/tvdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Date"/>
+        <EditText
+            android:id="@+id/etDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Date"
+            android:focusable="false"
+            android:inputType="none"
+            android:padding="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="20dp"/>
+
+
+        <!-- Note -->
+        <TextView
+            android:id="@+id/tvnote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note"/>
+        <EditText
+            android:id="@+id/etNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Add note"
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:layout_marginTop="12dp"
+            android:minLines="3" />
+    </LinearLayout>
+
+
+</ScrollView>
